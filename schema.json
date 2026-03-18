@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "minItems": 1,
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "output": {
+        "default": "outputs",
+        "description": "Output directory or file path",
+        "type": "string",
+        "minLength": 1
+      },
+      "aspect-ratio": {
+        "default": "1:1",
+        "description": "Aspect ratio of the generated image",
+        "type": "string",
+        "enum": [
+          "1:1",
+          "2:3",
+          "3:2",
+          "3:4",
+          "4:3",
+          "4:5",
+          "5:4",
+          "9:16",
+          "16:9",
+          "21:9"
+        ]
+      },
+      "resolution": {
+        "default": "1K",
+        "description": "Output image resolution",
+        "type": "string",
+        "enum": [
+          "1K",
+          "2K",
+          "4K"
+        ]
+      },
+      "format": {
+        "default": "png",
+        "description": "Output image file format",
+        "type": "string",
+        "enum": [
+          "png",
+          "jpg"
+        ]
+      },
+      "remove-background": {
+        "default": false,
+        "description": "Remove the background from the generated image",
+        "type": "boolean"
+      },
+      "image": {
+        "description": "Paths to reference images to guide the generation",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "count": {
+        "default": 1,
+        "description": "How many images to generate for this job",
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      },
+      "model": {
+        "default": "gemini-3-pro-image-preview",
+        "description": "Image generation model",
+        "type": "string",
+        "enum": [
+          "gemini-3-pro-image-preview",
+          "gemini-3.1-flash-image-preview"
+        ]
+      },
+      "prompt": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Text prompt describing the image to generate"
+      }
+    },
+    "required": [
+      "prompt"
+    ],
+    "additionalProperties": false
+  },
+  "description": "Batch configuration: an array of image generation jobs"
+}

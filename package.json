@@ -1,0 +1,44 @@
+{
+  "name": "imagegen",
+  "type": "module",
+  "version": "0.1.38",
+  "scripts": {
+    "start": "bun src/index.ts",
+    "bump": "bun bump.ts",
+    "schema": "bun gen-schema.ts",
+    "compile": "bun run bump && bun run schema && bun build --compile cli/index.ts --outfile bin/imagegen && ln -sf $(pwd)/bin/imagegen ~/.local/bin/imagegen",
+    "bundle": "bun run bump && bun run schema && bun build cli/index.ts --outfile bin/imagegen.js --target bun",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix .",
+    "prepublishOnly": "bun compile",
+    "release": "bumpp",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit",
+    "up": "bunx taze major -I",
+    "prepare": "simple-git-hooks"
+  },
+  "dependencies": {
+    "@google/genai": "^1.46.0",
+    "picocolors": "^1.1.1",
+    "replicate": "^1.4.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^7.7.3",
+    "@types/bun": "^1.3.10",
+    "bumpp": "^11.0.1",
+    "eslint": "^10.0.3",
+    "lint-staged": "^16.4.0",
+    "publint": "^0.3.18",
+    "simple-git-hooks": "^2.13.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.0",
+    "vitest": "^4.1.0"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "bun i --frozen-lockfile --ignore-scripts --offline && bunx lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
+  }
+}
