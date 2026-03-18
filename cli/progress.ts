@@ -2,10 +2,12 @@ import process from 'node:process'
 import pc from 'picocolors'
 
 const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+// eslint-disable-next-line no-control-regex
+const ANSI_RE = /\u001B\[[0-9;]*m/g
 
 // Strip ANSI escape codes to get visible character length
 function stripAnsi(str: string): string {
-  return str.replace(/\x1B\[[0-9;]*m/g, '')
+  return str.replace(ANSI_RE, '')
 }
 
 // Truncate a string (which may contain ANSI codes) to fit within a visible width

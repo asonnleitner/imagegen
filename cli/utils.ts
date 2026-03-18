@@ -25,12 +25,15 @@ export const MIME_TYPES: Record<string, string> = {
   '.gif': 'image/gif',
 }
 
+const NON_WORD_RE = /[^\w\s-]/g
+const WHITESPACE_RE = /\s+/g
+
 export function sanitizeFilename(prompt: string, maxLength = 50): string {
   const clean = prompt
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
+    .replace(NON_WORD_RE, '')
     .trim()
-    .replace(/\s+/g, '_')
+    .replace(WHITESPACE_RE, '_')
   return clean.slice(0, maxLength)
 }
 

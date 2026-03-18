@@ -98,8 +98,11 @@ if (values.model !== undefined)
 
 type GenRequest = Args & { prompt: string, outputFile?: string }
 
+const ENV_VAR_RE = /\$\{(\w+)\}|\$(\w+)/g
+const TRAILING_PATH_RE = /[/\\][^/\\]+$/
+
 function expandEnvVars(str: string): string {
-  return str.replace(/\$\{(\w+)\}|\$(\w+)/g, (_, braced, plain) => {
+  return str.replace(ENV_VAR_RE, (_, braced, plain) => {
     const name = braced ?? plain
     return process.env[name] ?? ''
   })
@@ -110,7 +113,7 @@ function resolveOutput(rawOutputDir: string): { outputDir: string, outputFile?: 
   if (outputExt === '.png' || outputExt === '.jpg' || outputExt === '.jpeg') {
     return {
       outputFile: rawOutputDir,
-      outputDir: rawOutputDir.replace(/[/\\][^/\\]+$/, '') || '.',
+      outputDir: rawOutputDir.replace(TRAILING_PATH_RE, '') || '.',
     }
   }
   return { outputDir: rawOutputDir }
