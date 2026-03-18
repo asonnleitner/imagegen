@@ -91,21 +91,25 @@ export async function generateImage(ai: GoogleGenAI, opts: GenerateOptions, prog
         },
       })
 
-      if (!response.candidates?.length) {
-        updateProgress(`${pc.red('✗')} ${label} failed (no candidates in response)`)
-        return { error: 'no candidates in response' }
-      }
+      const candidate = response.candidates?.[0]
+      const finishReason = candidate?.finishReason
+      const imagePart = candidate?.content?.parts?.find(p => p.inlineData?.data)
 
-      const candidate = response.candidates[0]
-      if (!candidate.content?.parts?.length) {
-        updateProgress(`${pc.red('✗')} ${label} failed (no content parts in response)`)
-        return { error: 'no content parts in response' }
-      }
-
-      const imagePart = candidate.content.parts.find(p => p.inlineData?.data)
       if (!imagePart?.inlineData?.data) {
-        updateProgress(`${pc.red('✗')} ${label} failed (no image data in response)`)
-        return { error: 'no image data in response' }
+        failures++
+        const reason = !response.candidates?.length
+          ? 'no candidates in response'
+          : !candidate?.content?.parts?.length
+              ? `no content parts (finishReason: ${finishReason ?? 'unknown'})`
+              : 'no image data in response'
+
+        if (failures >= MAX_RETRIES) {
+          updateProgress(`${pc.red('✗')} ${label} failed (${reason})`)
+          return { error: reason }
+        }
+        updateProgress(`${pc.red('✗')} ${label} ${reason} — retry #${failures}...`)
+        await Bun.sleep(RETRY_DELAY)
+        continue
       }
 
       const imageBuffer = Buffer.from(imagePart.inlineData.data, 'base64')
