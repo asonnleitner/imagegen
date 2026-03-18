@@ -70,33 +70,34 @@ export class Progress {
       this.timer = null
     }
     if (this.written) {
-      // Move up to first line and clear all lines
-      process.stdout.write(`\x1B[${this.lines.length}A`)
+      let buf = `\x1B[${this.lines.length}A`
       for (let i = 0; i < this.lines.length; i++) {
-        process.stdout.write('\x1B[2K')
+        buf += '\x1B[2K'
         if (i < this.lines.length - 1)
-          process.stdout.write('\n')
+          buf += '\n'
       }
-      // Move back up to first line
       if (this.lines.length > 1)
-        process.stdout.write(`\x1B[${this.lines.length - 1}A`)
-      process.stdout.write('\r')
+        buf += `\x1B[${this.lines.length - 1}A`
+      buf += '\r'
+      process.stdout.write(buf)
     }
   }
 
   private render(): void {
+    let buf = ''
     if (this.written) {
       // Move cursor up to first line
-      process.stdout.write(`\x1B[${this.lines.length}A`)
+      buf += `\x1B[${this.lines.length}A`
     }
+    const cols = process.stdout.columns || 80
     for (let i = 0; i < this.lines.length; i++) {
       const spinner = this.spinning[i]
         ? `${pc.yellow(SPINNER_FRAMES[this.frame % SPINNER_FRAMES.length])} `
         : ''
-      const cols = process.stdout.columns || 80
       const line = truncateToWidth(`  ${spinner}${this.lines[i]}`, cols)
-      process.stdout.write(`\x1B[2K${line}\n`)
+      buf += `\x1B[2K${line}\n`
     }
+    process.stdout.write(buf)
     this.written = true
   }
 }
@@ -151,35 +152,38 @@ export class GroupedProgress {
     }
     const total = this.totalRenderedLines
     if (this.written) {
-      process.stdout.write(`\x1B[${total}A`)
+      let buf = `\x1B[${total}A`
       for (let i = 0; i < total; i++) {
-        process.stdout.write('\x1B[2K')
+        buf += '\x1B[2K'
         if (i < total - 1)
-          process.stdout.write('\n')
+          buf += '\n'
       }
       if (total > 1)
-        process.stdout.write(`\x1B[${total - 1}A`)
-      process.stdout.write('\r')
+        buf += `\x1B[${total - 1}A`
+      buf += '\r'
+      process.stdout.write(buf)
     }
   }
 
   private render(): void {
     const total = this.totalRenderedLines
+    let buf = ''
     if (this.written) {
-      process.stdout.write(`\x1B[${total}A`)
+      buf += `\x1B[${total}A`
     }
+    const cols = process.stdout.columns || 80
     for (let gi = 0; gi < this.groups.length; gi++) {
-      const cols = process.stdout.columns || 80
       const header = truncateToWidth(`  ${pc.dim(this.groups[gi].header)}`, cols)
-      process.stdout.write(`\x1B[2K${header}\n`)
+      buf += `\x1B[2K${header}\n`
       for (let ii = 0; ii < this.groups[gi].count; ii++) {
         const spinner = this.spinning[gi][ii]
           ? `${pc.yellow(SPINNER_FRAMES[this.frame % SPINNER_FRAMES.length])} `
           : ''
         const line = truncateToWidth(`    ${spinner}${this.lines[gi][ii]}`, cols)
-        process.stdout.write(`\x1B[2K${line}\n`)
+        buf += `\x1B[2K${line}\n`
       }
     }
+    process.stdout.write(buf)
     this.written = true
   }
 }
